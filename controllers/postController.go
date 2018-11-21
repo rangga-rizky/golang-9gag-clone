@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"../models"
+	serializer "../serializers"
 	u "../utils"
 )
 
@@ -21,8 +22,8 @@ var CreatePost = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer file.Close()
-	imagePath := "/public/images/" + strconv.FormatInt(time.Now().UnixNano()/1000000, 10) + handler.Filename
-	resp, isSuccess := u.UploadFile(file, handler, "."+imagePath)
+	imagePath := "/images/" + strconv.FormatInt(time.Now().UnixNano()/1000000, 10) + handler.Filename
+	resp, isSuccess := u.UploadFile(file, handler, "./public"+imagePath)
 
 	if isSuccess == false {
 		u.RespondWithStatus(w, resp, http.StatusBadRequest)
@@ -54,7 +55,8 @@ var CreatePost = func(w http.ResponseWriter, r *http.Request) {
 }
 
 var GetPosts = func(w http.ResponseWriter, r *http.Request) {
-	data := models.GetPosts()
+	posts := models.GetPosts()
+	data, _ := serializer.CustomPostSerializer().TransformArray(posts)
 	resp := u.Message(true, "success")
 	resp["data"] = data
 	u.Respond(w, resp)

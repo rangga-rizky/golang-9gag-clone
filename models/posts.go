@@ -7,10 +7,12 @@ import (
 
 type Post struct {
 	gorm.Model
-	Title     string `json:"title"`
-	ImagePath string `json:"image_path"`
-	UserID    uint   `json:"user_id"`
-	SectionID uint   `json:"section_id"`
+	Title     string  `json:"title"`
+	ImagePath string  `json:"image_path"`
+	UserID    uint    `json:"user_id"`
+	User      Account `gorm:"foreignkey:UserID"`
+	SectionID uint    `json:"section_id"`
+	Section   Section `gorm:"foreignkey:SectionID"`
 }
 
 func (post *Post) Validate() (map[string]interface{}, bool) {
@@ -42,6 +44,6 @@ func (post *Post) Create() map[string]interface{} {
 func GetPosts() []*Post {
 
 	var posts []*Post
-	GetDB().Table("posts").Find(&posts)
+	GetDB().Preload("Section").Preload("User").Order("created_at").Find(&posts)
 	return posts
 }
