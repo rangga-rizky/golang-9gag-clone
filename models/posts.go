@@ -47,3 +47,19 @@ func GetPosts() []*Post {
 	GetDB().Preload("Section").Preload("User").Order("created_at").Find(&posts)
 	return posts
 }
+
+func GetPost(u uint) *Post {
+
+	post := &Post{}
+	GetDB().Table("posts").Where("id = ?", u).First(post)
+	if post.Title == "" { //User not found!
+		return nil
+	}
+	return post
+}
+
+func DeletePost(id int) {
+	post := &Post{}
+	db.First(&post, id)
+	GetDB().Delete(&post)
+}

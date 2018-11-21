@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/gorilla/mux"
+
 	"../models"
 	serializer "../serializers"
 	u "../utils"
@@ -59,5 +61,24 @@ var GetPosts = func(w http.ResponseWriter, r *http.Request) {
 	data, _ := serializer.CustomPostSerializer().TransformArray(posts)
 	resp := u.Message(true, "success")
 	resp["data"] = data
+	u.Respond(w, resp)
+}
+
+var DeletePost = func(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	uid := r.Context().Value("user").(uint)
+	postID, _ := strconv.Atoi(vars["id"])
+	post := models.GetPost(uint(postID))
+	if post == nil {
+		u.RespondWithStatus(w, u.Message(false, "Post tidak ditemukan"), http.StatusNotFound)
+		return
+	}
+
+	if post.UserID != uid {
+		u.RespondWithStatus(w, u.Message(false, "You are not authorized"), http.StatusUnauthorized)
+		return
+	}
+	models.DeletePost(postID)
+	resp := u.Message(true, "data berhasil dihapus")
 	u.Respond(w, resp)
 }
