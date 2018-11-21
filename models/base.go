@@ -33,6 +33,7 @@ func init() {
 	db = conn
 	db.Debug().AutoMigrate(&Account{})
 	db.Debug().AutoMigrate(&Post{})
+	db.Debug().AutoMigrate(&Comment{})
 	db.Debug().AutoMigrate(&Section{}) //Database migration
 }
 

@@ -26,6 +26,7 @@ func main() {
 	router.HandleFunc("/api/posts", controllers.CreatePost).Methods("POST")
 	router.HandleFunc("/api/posts", controllers.GetPosts).Methods("GET")
 	router.HandleFunc("/api/posts/{id}", controllers.DeletePost).Methods("DELETE")
+	router.HandleFunc("/api/comments", controllers.CreateComment).Methods("POST")
 
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./public/")))
 
