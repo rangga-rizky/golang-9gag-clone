@@ -7,13 +7,14 @@ import (
 
 type Post struct {
 	gorm.Model
-	Title     string    `json:"title"`
-	ImagePath string    `json:"image_path"`
-	UserID    uint      `json:"user_id"`
-	User      Account   `gorm:"foreignkey:UserID"`
-	SectionID uint      `json:"section_id"`
-	Section   Section   `gorm:"foreignkey:SectionID"`
-	Comments  []Comment `gorm:"foreignkey:PostID"`
+	Title     string      `json:"title"`
+	ImagePath string      `json:"image_path"`
+	UserID    uint        `json:"user_id"`
+	User      Account     `gorm:"foreignkey:UserID"`
+	SectionID uint        `json:"section_id"`
+	Section   Section     `gorm:"foreignkey:SectionID"`
+	Comments  []Comment   `gorm:"foreignkey:PostID"`
+	PostVotes []PostVotes `gorm:"foreignkey:PostID"`
 }
 
 func (post *Post) Validate() (map[string]interface{}, bool) {

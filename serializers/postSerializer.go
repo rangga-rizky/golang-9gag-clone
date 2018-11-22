@@ -11,7 +11,7 @@ type PostSerializer struct {
 
 func CustomPostSerializer() *PostSerializer {
 	u := &PostSerializer{structomap.New()}
-	u.Pick("ID", "Title", "ImagePath", "CreatedAt", "UpdatedAt")
+	u.Pick("ID", "Title", "ImagePath", "CreatedAt", "UpdatedAt", "PostVotes")
 	u.PickFunc(func(t interface{}) interface{} {
 		user := map[string]interface{}{}
 		user["ID"] = t.(m.Account).ID
