@@ -7,6 +7,7 @@ import (
 
 	"../models"
 	u "../utils"
+	"github.com/gorilla/mux"
 )
 
 var CreateComment = func(w http.ResponseWriter, r *http.Request) {
@@ -46,4 +47,23 @@ var CreateComment = func(w http.ResponseWriter, r *http.Request) {
 	u.RespondWithStatus(w, resp, httpStatus)
 	return
 
+}
+
+var DeleteComment = func(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	uid := r.Context().Value("user").(uint)
+	commentID, _ := strconv.Atoi(vars["id"])
+	comment := models.GetComment(uint(commentID))
+	if comment == nil {
+		u.RespondWithStatus(w, u.Message(false, "Komentar tidak ditemukan"), http.StatusNotFound)
+		return
+	}
+
+	if comment.UserID != uid {
+		u.RespondWithStatus(w, u.Message(false, "You are not authorized"), http.StatusUnauthorized)
+		return
+	}
+	models.DeleteComment(commentID)
+	resp := u.Message(true, "data berhasil dihapus")
+	u.Respond(w, resp)
 }

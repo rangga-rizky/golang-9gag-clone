@@ -37,3 +37,18 @@ func (comment *Comment) Create() map[string]interface{} {
 	resp["comment"] = comment
 	return resp
 }
+
+func GetComment(u uint) *Comment {
+
+	comment := &Comment{}
+	GetDB().Table("comments").Where("id = ?", u).First(comment)
+	if comment.ID == 0 {
+		return nil
+	}
+	return comment
+}
+
+func DeleteComment(id int) {
+	comment := &Comment{}
+	GetDB().Delete(&comment, id)
+}
