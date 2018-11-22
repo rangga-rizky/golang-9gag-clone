@@ -52,7 +52,7 @@ func GetPosts() []*Post {
 func GetPost(u uint) *Post {
 
 	post := &Post{}
-	GetDB().Table("posts").Where("id = ?", u).First(post)
+	GetDB().Where("id = ?", u).First(post)
 	if post.Title == "" { //User not found!
 		return nil
 	}

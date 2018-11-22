@@ -27,6 +27,7 @@ func main() {
 	router.HandleFunc("/api/posts", controllers.GetPosts).Methods("GET")
 	router.HandleFunc("/api/posts/{id}", controllers.GetPost).Methods("GET")
 	router.HandleFunc("/api/posts/{id}", controllers.DeletePost).Methods("DELETE")
+	router.HandleFunc("/api/posts/{id}/upvote", controllers.UpVotes).Methods("POST")
 	router.HandleFunc("/api/comments", controllers.CreateComment).Methods("POST")
 	router.HandleFunc("/api/comments/{id}", controllers.DeleteComment).Methods("DELETE")
 

@@ -96,3 +96,23 @@ var GetPost = func(w http.ResponseWriter, r *http.Request) {
 	resp["data"] = data
 	u.Respond(w, resp)
 }
+
+var UpVotes = func(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	uid := r.Context().Value("user").(uint)
+	postID, _ := strconv.Atoi(vars["id"])
+	postVotes := models.IsVoted(uid, uint(postID))
+	if postVotes == nil {
+		postVotes = &models.PostVotes{}
+		postVotes.UserID = uid
+		postVotes.PostID = uint(postID)
+		postVotes.Score = 1
+		postVotes.Create()
+	} else if postVotes.Score == 1 {
+		u.RespondWithStatus(w, u.Message(false, "Anda sudah mengupvotes post ini "), http.StatusBadRequest)
+		return
+	} else {
+		models.UpdateScore(postVotes, 1)
+	}
+	u.Respond(w, u.Message(true, "upvotes berhasil"))
+}

@@ -34,6 +34,7 @@ func init() {
 	db.Debug().AutoMigrate(&Account{})
 	db.Debug().AutoMigrate(&Post{})
 	db.Debug().AutoMigrate(&Comment{})
+	db.Debug().AutoMigrate(&PostVotes{})
 	db.Debug().AutoMigrate(&Section{}) //Database migration
 }
 
