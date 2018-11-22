@@ -34,7 +34,7 @@ func (postVotes *PostVotes) Create() map[string]interface{} {
 	return resp
 }
 
-func IsVoted(uid uint, postID uint) *PostVotes {
+func IsVotedPost(uid uint, postID uint) *PostVotes {
 
 	postVotes := &PostVotes{}
 	GetDB().Where("user_id = ?", uid).Where("post_id = ?", postID).First(postVotes)
@@ -44,7 +44,7 @@ func IsVoted(uid uint, postID uint) *PostVotes {
 	return postVotes
 }
 
-func UpdateScore(postVotes *PostVotes, score int) {
+func UpdatePostScore(postVotes *PostVotes, score int) {
 	postVotes.Score = score
 	GetDB().Save(&postVotes)
 }

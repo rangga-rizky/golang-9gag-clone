@@ -97,11 +97,16 @@ var GetPost = func(w http.ResponseWriter, r *http.Request) {
 	u.Respond(w, resp)
 }
 
-var UpVotes = func(w http.ResponseWriter, r *http.Request) {
+var UpVotesPost = func(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	uid := r.Context().Value("user").(uint)
 	postID, _ := strconv.Atoi(vars["id"])
-	postVotes := models.IsVoted(uid, uint(postID))
+	post := models.GetPost(uint(postID))
+	if post == nil {
+		u.RespondWithStatus(w, u.Message(false, "Post tidak ditemukan"), http.StatusNotFound)
+		return
+	}
+	postVotes := models.IsVotedPost(uid, uint(postID))
 	if postVotes == nil {
 		postVotes = &models.PostVotes{}
 		postVotes.UserID = uid
@@ -112,16 +117,21 @@ var UpVotes = func(w http.ResponseWriter, r *http.Request) {
 		u.RespondWithStatus(w, u.Message(false, "Anda sudah mengupvotes post ini "), http.StatusBadRequest)
 		return
 	} else {
-		models.UpdateScore(postVotes, 1)
+		models.UpdatePostScore(postVotes, 1)
 	}
 	u.Respond(w, u.Message(true, "upvote berhasil"))
 }
 
-var DownVotes = func(w http.ResponseWriter, r *http.Request) {
+var DownVotesPost = func(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	uid := r.Context().Value("user").(uint)
 	postID, _ := strconv.Atoi(vars["id"])
-	postVotes := models.IsVoted(uid, uint(postID))
+	post := models.GetPost(uint(postID))
+	if post == nil {
+		u.RespondWithStatus(w, u.Message(false, "Post tidak ditemukan"), http.StatusNotFound)
+		return
+	}
+	postVotes := models.IsVotedPost(uid, uint(postID))
 	if postVotes == nil {
 		postVotes = &models.PostVotes{}
 		postVotes.UserID = uid
@@ -132,7 +142,7 @@ var DownVotes = func(w http.ResponseWriter, r *http.Request) {
 		u.RespondWithStatus(w, u.Message(false, "Anda sudah mendownvote post ini "), http.StatusBadRequest)
 		return
 	} else {
-		models.UpdateScore(postVotes, -1)
+		models.UpdatePostScore(postVotes, -1)
 	}
 	u.Respond(w, u.Message(true, "downvote berhasil"))
 }
