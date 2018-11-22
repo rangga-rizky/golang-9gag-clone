@@ -7,12 +7,13 @@ import (
 
 type Post struct {
 	gorm.Model
-	Title     string  `json:"title"`
-	ImagePath string  `json:"image_path"`
-	UserID    uint    `json:"user_id"`
-	User      Account `gorm:"foreignkey:UserID"`
-	SectionID uint    `json:"section_id"`
-	Section   Section `gorm:"foreignkey:SectionID"`
+	Title     string    `json:"title"`
+	ImagePath string    `json:"image_path"`
+	UserID    uint      `json:"user_id"`
+	User      Account   `gorm:"foreignkey:UserID"`
+	SectionID uint      `json:"section_id"`
+	Section   Section   `gorm:"foreignkey:SectionID"`
+	Comments  []Comment `gorm:"foreignkey:PostID"`
 }
 
 func (post *Post) Validate() (map[string]interface{}, bool) {
@@ -52,6 +53,16 @@ func GetPost(u uint) *Post {
 
 	post := &Post{}
 	GetDB().Table("posts").Where("id = ?", u).First(post)
+	if post.Title == "" { //User not found!
+		return nil
+	}
+	return post
+}
+
+func GetPostWithComments(u uint) *Post {
+
+	post := &Post{}
+	GetDB().Preload("Comments").Preload("Comments.User").Preload("Section").Preload("User").Find(post, u)
 	if post.Title == "" { //User not found!
 		return nil
 	}

@@ -24,10 +24,29 @@ func CustomPostSerializer() *PostSerializer {
 		section["name"] = t.(m.Section).Name
 		return section
 	}, "Section")
+
 	return u
 }
 
-/*func (u *PostSerializer) WithUser() *PostSerializer {
-	u.Pick("User")
+func (u *PostSerializer) WithComments() *PostSerializer {
+	u.PickFunc(func(t interface{}) interface{} {
+		comments := []interface{}{}
+
+		switch t := t.(type) {
+		case []m.Comment:
+			for _, value := range t {
+				newComment := map[string]interface{}{}
+				newComment["ID"] = value.ID
+				newComment["Text"] = value.Text
+				newComment["ImagePath"] = value.ImagePath
+				newComment["User"] = value.User.Email
+				newComment["UserID"] = value.UserID
+				newComment["CreatedAt"] = value.CreatedAt
+				comments = append(comments, newComment)
+			}
+
+		}
+		return comments
+	}, "Comments")
 	return u
-}*/
+}

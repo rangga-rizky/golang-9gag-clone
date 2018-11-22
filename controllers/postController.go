@@ -82,3 +82,17 @@ var DeletePost = func(w http.ResponseWriter, r *http.Request) {
 	resp := u.Message(true, "data berhasil dihapus")
 	u.Respond(w, resp)
 }
+
+var GetPost = func(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	postID, _ := strconv.Atoi(vars["id"])
+	post := models.GetPostWithComments(uint(postID))
+	if post == nil {
+		u.RespondWithStatus(w, u.Message(false, "Post tidak ditemukan"), http.StatusNotFound)
+		return
+	}
+	data := serializer.CustomPostSerializer().WithComments().Transform(post)
+	resp := u.Message(true, "success")
+	resp["data"] = data
+	u.Respond(w, resp)
+}

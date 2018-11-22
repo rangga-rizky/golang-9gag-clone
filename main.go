@@ -25,6 +25,7 @@ func main() {
 	router.HandleFunc("/api/sections", controllers.GetSections).Methods("GET")
 	router.HandleFunc("/api/posts", controllers.CreatePost).Methods("POST")
 	router.HandleFunc("/api/posts", controllers.GetPosts).Methods("GET")
+	router.HandleFunc("/api/posts/{id}", controllers.GetPost).Methods("GET")
 	router.HandleFunc("/api/posts/{id}", controllers.DeletePost).Methods("DELETE")
 	router.HandleFunc("/api/comments", controllers.CreateComment).Methods("POST")
 
@@ -32,7 +33,7 @@ func main() {
 
 	fmt.Println("Run in " + port)
 
-	err := http.ListenAndServe(":"+port, router) //Launch the app, visit localhost:8000/api
+	err := http.ListenAndServe(":"+port, router)
 	if err != nil {
 		fmt.Print(err)
 	}
