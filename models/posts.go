@@ -1,6 +1,8 @@
 package models
 
 import (
+	"log"
+
 	u "../utils"
 	"github.com/jinzhu/gorm"
 )
@@ -15,6 +17,7 @@ type Post struct {
 	Section   Section     `gorm:"foreignkey:SectionID"`
 	Comments  []Comment   `gorm:"foreignkey:PostID"`
 	PostVotes []PostVotes `gorm:"foreignkey:PostID"`
+	Score     int         `gorm:"-"`
 }
 
 func (post *Post) Validate() (map[string]interface{}, bool) {
@@ -46,7 +49,26 @@ func (post *Post) Create() map[string]interface{} {
 func GetPosts() []*Post {
 
 	var posts []*Post
-	GetDB().Preload("Section").Preload("User").Order("created_at").Find(&posts)
+	//GetDB().Preload("Section").Preload("User").Order("created_at").Find(&posts)
+	rows, _ := GetDB().Raw("SELECT  posts.id,posts.title,posts.image_path,  COALESCE(SUM(post_votes.score),0) ,posts.created_at,posts.deleted_at,sections.name ,sections.id AS 'section.id',	accounts.email ,accounts.id AS 'user.id' FROM posts LEFT JOIN post_votes ON posts.id = post_votes.post_id  LEFT JOIN sections ON sections.id = posts.section_id LEFT JOIN accounts ON accounts.id = posts.user_id  WHERE posts.deleted_at is NULL GROUP BY posts.title").Rows()
+	defer rows.Close()
+	for rows.Next() {
+		post := Post{}
+		err := rows.Scan(&post.ID,
+			&post.Title,
+			&post.ImagePath,
+			&post.Score,
+			&post.CreatedAt,
+			&post.DeletedAt,
+			&post.Section.Name,
+			&post.Section.ID,
+			&post.User.Email,
+			&post.User.ID)
+		if err != nil {
+			log.Fatal(err)
+		}
+		posts = append(posts, &post)
+	}
 	return posts
 }
 
@@ -62,12 +84,34 @@ func GetPost(u uint) *Post {
 
 func GetPostWithComments(u uint) *Post {
 
-	post := &Post{}
-	GetDB().Preload("Comments").Preload("Comments.User").Preload("Section").Preload("User").Find(post, u)
-	if post.Title == "" { //User not found!
+	post := Post{}
+	GetDB().Preload("Section").Preload("User").Find(&post, u)
+	row := GetDB().Raw("SELECT SUM(score) FROM post_votes WHERE post_id = ? ", u).Row()
+	row.Scan(&post.Score)
+	var comments []Comment
+	//GetDB().Preload("Section").Preload("User").Order("created_at").Find(&posts)
+	rows, _ := GetDB().Raw("SELECT  comments.id,comments.text,comments.image_path,  COALESCE(SUM(comment_votes.score),0) ,comments.created_at,comments.deleted_at,accounts.email ,accounts.id AS 'user.id' FROM comments LEFT JOIN comment_votes ON comments.id = comment_votes.comment_id   LEFT JOIN accounts ON accounts.id = comments.user_id  WHERE comments.deleted_at is NULL GROUP BY comments.id").Rows()
+	defer rows.Close()
+	for rows.Next() {
+		comment := Comment{}
+		err := rows.Scan(&comment.ID,
+			&comment.Text,
+			&comment.ImagePath,
+			&comment.Score,
+			&comment.CreatedAt,
+			&comment.DeletedAt,
+			&comment.User.Email,
+			&comment.User.ID)
+		if err != nil {
+			log.Fatal(err)
+		}
+		comments = append(comments, comment)
+	}
+	if post.Title == "" {
 		return nil
 	}
-	return post
+	post.Comments = comments
+	return &post
 }
 
 func DeletePost(id int) {

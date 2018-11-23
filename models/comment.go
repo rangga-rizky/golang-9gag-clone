@@ -7,11 +7,14 @@ import (
 
 type Comment struct {
 	gorm.Model
-	UserID    uint    `json:"user_id"`
-	User      Account `gorm:"foreignkey:UserID"`
-	PostID    int     `json:"post_id"`
-	ImagePath string  `json:"image_path"`
-	Text      string  `json:"text"`
+	UserID    uint      `json:"user_id"`
+	User      Account   `gorm:"foreignkey:UserID"`
+	PostID    int       `json:"post_id"`
+	ParentID  uint      `json:"parent_id"`
+	Childrens []Comment `gorm:"foreignkey:ParentID"`
+	ImagePath string    `json:"image_path"`
+	Text      string    `json:"text"`
+	Score     int       `gorm:"-"`
 }
 
 func (comment *Comment) Validate() (map[string]interface{}, bool) {

@@ -11,7 +11,7 @@ type PostSerializer struct {
 
 func CustomPostSerializer() *PostSerializer {
 	u := &PostSerializer{structomap.New()}
-	u.Pick("ID", "Title", "ImagePath", "CreatedAt", "UpdatedAt", "PostVotes")
+	u.Pick("ID", "Title", "ImagePath", "CreatedAt", "UpdatedAt", "Score")
 	u.PickFunc(func(t interface{}) interface{} {
 		user := map[string]interface{}{}
 		user["ID"] = t.(m.Account).ID
@@ -41,6 +41,7 @@ func (u *PostSerializer) WithComments() *PostSerializer {
 				newComment["ImagePath"] = value.ImagePath
 				newComment["User"] = value.User.Email
 				newComment["UserID"] = value.UserID
+				newComment["Score"] = value.Score
 				newComment["CreatedAt"] = value.CreatedAt
 				comments = append(comments, newComment)
 			}
