@@ -24,8 +24,8 @@ func RespondWithStatus(w http.ResponseWriter, data map[string]interface{}, statu
 }
 
 func SendMail(recipent string, subject string, body string) {
-	from := "antoxsitopijerami@gmail.com"
-	pass := "0315620779"
+	from := ""
+	pass := ""
 	to := recipent
 
 	msg := "From: " + from + "\n" +
