@@ -3,6 +3,7 @@ Web Service Clone of 9GAG using GOlang and mySQL
 
 1. JWT Authentication, Authorization
 2. Create,Read, Delete Post and Comment
+3. Upvotes and Downvotes Post/Comment
 3. email Verification Login
 
 **How to use**
