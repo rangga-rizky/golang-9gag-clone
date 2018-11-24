@@ -1,6 +1,8 @@
 package models
 
 import (
+	"log"
+
 	u "../utils"
 	"github.com/jinzhu/gorm"
 )
@@ -47,6 +49,30 @@ func GetComment(u uint) *Comment {
 		return nil
 	}
 	return comment
+}
+
+func getCommentsByPost(postID uint) []Comment {
+	var comments []Comment
+	rows, _ := GetDB().Raw("SELECT  comments.id,comments.post_id,comments.text,comments.image_path,  COALESCE(SUM(comment_votes.score),0) ,comments.created_at,comments.deleted_at,accounts.email ,accounts.id AS 'user.id' FROM comments LEFT JOIN comment_votes ON comments.id = comment_votes.comment_id   LEFT JOIN accounts ON accounts.id = comments.user_id  WHERE comments.deleted_at is NULL AND comments.post_id = ? GROUP BY comments.id", postID).Rows()
+	defer rows.Close()
+	for rows.Next() {
+		comment := Comment{}
+		err := rows.Scan(&comment.ID,
+			&comment.PostID,
+			&comment.Text,
+			&comment.ImagePath,
+			&comment.Score,
+			&comment.CreatedAt,
+			&comment.DeletedAt,
+			&comment.User.Email,
+			&comment.User.ID)
+		if err != nil {
+			log.Fatal(err)
+		}
+		comments = append(comments, comment)
+	}
+
+	return comments
 }
 
 func DeleteComment(id int) {

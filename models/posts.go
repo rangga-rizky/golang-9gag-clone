@@ -82,35 +82,18 @@ func GetPost(u uint) *Post {
 	return post
 }
 
-func GetPostWithComments(u uint) *Post {
+func GetPostWithComments(id uint) *Post {
 
 	post := Post{}
-	GetDB().Preload("Section").Preload("User").Find(&post, u)
-	row := GetDB().Raw("SELECT SUM(score) FROM post_votes WHERE post_id = ? ", u).Row()
+	GetDB().Preload("Section").Preload("User").Find(&post, id)
+	row := GetDB().Raw("SELECT SUM(score) FROM post_votes WHERE post_id = ? ", id).Row()
 	row.Scan(&post.Score)
-	var comments []Comment
 	//GetDB().Preload("Section").Preload("User").Order("created_at").Find(&posts)
-	rows, _ := GetDB().Raw("SELECT  comments.id,comments.text,comments.image_path,  COALESCE(SUM(comment_votes.score),0) ,comments.created_at,comments.deleted_at,accounts.email ,accounts.id AS 'user.id' FROM comments LEFT JOIN comment_votes ON comments.id = comment_votes.comment_id   LEFT JOIN accounts ON accounts.id = comments.user_id  WHERE comments.deleted_at is NULL GROUP BY comments.id").Rows()
-	defer rows.Close()
-	for rows.Next() {
-		comment := Comment{}
-		err := rows.Scan(&comment.ID,
-			&comment.Text,
-			&comment.ImagePath,
-			&comment.Score,
-			&comment.CreatedAt,
-			&comment.DeletedAt,
-			&comment.User.Email,
-			&comment.User.ID)
-		if err != nil {
-			log.Fatal(err)
-		}
-		comments = append(comments, comment)
-	}
+
 	if post.Title == "" {
 		return nil
 	}
-	post.Comments = comments
+	post.Comments = getCommentsByPost(id)
 	return &post
 }
 
